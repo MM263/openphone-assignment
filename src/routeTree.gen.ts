@@ -11,15 +11,44 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ConversationsRouteImport } from './routes/conversations/route'
 import { Route as IndexImport } from './routes/index'
+import { Route as ConversationsIndexImport } from './routes/conversations/index'
+import { Route as ConversationsPhoneIdIndexImport } from './routes/conversations/$phoneId/index'
+import { Route as ConversationsPhoneIdParticipantPhoneIdImport } from './routes/conversations/$phoneId/$participantPhoneId'
 
 // Create/Update Routes
+
+const ConversationsRouteRoute = ConversationsRouteImport.update({
+  id: '/conversations',
+  path: '/conversations',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const ConversationsIndexRoute = ConversationsIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ConversationsRouteRoute,
+} as any)
+
+const ConversationsPhoneIdIndexRoute = ConversationsPhoneIdIndexImport.update({
+  id: '/$phoneId/',
+  path: '/$phoneId/',
+  getParentRoute: () => ConversationsRouteRoute,
+} as any)
+
+const ConversationsPhoneIdParticipantPhoneIdRoute =
+  ConversationsPhoneIdParticipantPhoneIdImport.update({
+    id: '/$phoneId/$participantPhoneId',
+    path: '/$phoneId/$participantPhoneId',
+    getParentRoute: () => ConversationsRouteRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -32,39 +61,111 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/conversations': {
+      id: '/conversations'
+      path: '/conversations'
+      fullPath: '/conversations'
+      preLoaderRoute: typeof ConversationsRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/conversations/': {
+      id: '/conversations/'
+      path: '/'
+      fullPath: '/conversations/'
+      preLoaderRoute: typeof ConversationsIndexImport
+      parentRoute: typeof ConversationsRouteImport
+    }
+    '/conversations/$phoneId/$participantPhoneId': {
+      id: '/conversations/$phoneId/$participantPhoneId'
+      path: '/$phoneId/$participantPhoneId'
+      fullPath: '/conversations/$phoneId/$participantPhoneId'
+      preLoaderRoute: typeof ConversationsPhoneIdParticipantPhoneIdImport
+      parentRoute: typeof ConversationsRouteImport
+    }
+    '/conversations/$phoneId/': {
+      id: '/conversations/$phoneId/'
+      path: '/$phoneId'
+      fullPath: '/conversations/$phoneId'
+      preLoaderRoute: typeof ConversationsPhoneIdIndexImport
+      parentRoute: typeof ConversationsRouteImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface ConversationsRouteRouteChildren {
+  ConversationsIndexRoute: typeof ConversationsIndexRoute
+  ConversationsPhoneIdParticipantPhoneIdRoute: typeof ConversationsPhoneIdParticipantPhoneIdRoute
+  ConversationsPhoneIdIndexRoute: typeof ConversationsPhoneIdIndexRoute
+}
+
+const ConversationsRouteRouteChildren: ConversationsRouteRouteChildren = {
+  ConversationsIndexRoute: ConversationsIndexRoute,
+  ConversationsPhoneIdParticipantPhoneIdRoute:
+    ConversationsPhoneIdParticipantPhoneIdRoute,
+  ConversationsPhoneIdIndexRoute: ConversationsPhoneIdIndexRoute,
+}
+
+const ConversationsRouteRouteWithChildren =
+  ConversationsRouteRoute._addFileChildren(ConversationsRouteRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/conversations': typeof ConversationsRouteRouteWithChildren
+  '/conversations/': typeof ConversationsIndexRoute
+  '/conversations/$phoneId/$participantPhoneId': typeof ConversationsPhoneIdParticipantPhoneIdRoute
+  '/conversations/$phoneId': typeof ConversationsPhoneIdIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/conversations': typeof ConversationsIndexRoute
+  '/conversations/$phoneId/$participantPhoneId': typeof ConversationsPhoneIdParticipantPhoneIdRoute
+  '/conversations/$phoneId': typeof ConversationsPhoneIdIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/conversations': typeof ConversationsRouteRouteWithChildren
+  '/conversations/': typeof ConversationsIndexRoute
+  '/conversations/$phoneId/$participantPhoneId': typeof ConversationsPhoneIdParticipantPhoneIdRoute
+  '/conversations/$phoneId/': typeof ConversationsPhoneIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/conversations'
+    | '/conversations/'
+    | '/conversations/$phoneId/$participantPhoneId'
+    | '/conversations/$phoneId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/conversations'
+    | '/conversations/$phoneId/$participantPhoneId'
+    | '/conversations/$phoneId'
+  id:
+    | '__root__'
+    | '/'
+    | '/conversations'
+    | '/conversations/'
+    | '/conversations/$phoneId/$participantPhoneId'
+    | '/conversations/$phoneId/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConversationsRouteRoute: typeof ConversationsRouteRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConversationsRouteRoute: ConversationsRouteRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +178,32 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/conversations"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/conversations": {
+      "filePath": "conversations/route.tsx",
+      "children": [
+        "/conversations/",
+        "/conversations/$phoneId/$participantPhoneId",
+        "/conversations/$phoneId/"
+      ]
+    },
+    "/conversations/": {
+      "filePath": "conversations/index.tsx",
+      "parent": "/conversations"
+    },
+    "/conversations/$phoneId/$participantPhoneId": {
+      "filePath": "conversations/$phoneId/$participantPhoneId.tsx",
+      "parent": "/conversations"
+    },
+    "/conversations/$phoneId/": {
+      "filePath": "conversations/$phoneId/index.tsx",
+      "parent": "/conversations"
     }
   }
 }
