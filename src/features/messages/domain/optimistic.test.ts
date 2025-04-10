@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { Message, MessagesResponse } from "@/common/api/types";
 import {
   mergeOptimisticMessage,
@@ -76,7 +77,7 @@ describe("mergeOptimisticMessage", () => {
   });
 
   it("should correctly handle multiple pages", () => {
-    const existingData = {
+    const existingData: InfiniteData<MessagesResponse> = {
       pages: [
         {
           data: [
@@ -157,7 +158,7 @@ describe("replaceOptimisticMessage", () => {
 
   it("should replace an optimistic message with an actual message", () => {
     const optimisticId = "temp-123";
-    const existingData = {
+    const existingData: InfiniteData<MessagesResponse> = {
       pages: [
         {
           data: [
@@ -212,13 +213,13 @@ describe("replaceOptimisticMessage", () => {
       actualMessage,
     );
 
-    expect(result.pages[0].data[0].id).toBe("real-123");
-    expect(result.pages[0].data[0].status).toBe("delivered");
-    expect(result.pages[0].data).toHaveLength(2);
+    expect(result?.pages[0].data[0].id).toBe("real-123");
+    expect(result?.pages[0].data[0].status).toBe("delivered");
+    expect(result?.pages[0].data).toHaveLength(2);
   });
 
   it("should not modify data if optimistic message is not found", () => {
-    const existingData = {
+    const existingData: InfiniteData<MessagesResponse> = {
       pages: [
         {
           data: [

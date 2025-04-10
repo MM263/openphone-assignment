@@ -8,7 +8,7 @@ import { InfiniteData } from "@tanstack/react-query";
  * @returns Updated data structure with the optimistic message added
  */
 export function mergeOptimisticMessage(
-  existingData: InfiniteData<MessagesResponse>,
+  existingData: InfiniteData<MessagesResponse> | null,
   optimisticMessage: Message,
 ) {
   if (!existingData || !existingData.pages || existingData.pages.length === 0) {
@@ -41,7 +41,7 @@ export function mergeOptimisticMessage(
  * @returns Updated data structure with the optimistic message replaced
  */
 export function replaceOptimisticMessage(
-  existingData: InfiniteData<MessagesResponse>,
+  existingData: InfiniteData<MessagesResponse> | null,
   optimisticMessageId: string,
   actualMessage: Message,
 ) {
