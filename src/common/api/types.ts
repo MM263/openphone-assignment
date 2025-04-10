@@ -106,3 +106,15 @@ export interface MessagesResponse {
   totalItems: number;
   nextPageToken: string | null;
 }
+
+export interface SendMessageParams {
+  content: string; // Required, 1-1600 chars
+  from: string; // Required, OpenPhone number ID or E.164 format
+  to: string[]; // Required, Array of E.164 recipient numbers
+  userId?: string; // Optional, defaults to phone number owner
+  setInboxStatus?: "done"; // Optional
+}
+
+export interface SendMessageResponse {
+  data: Message;
+}

@@ -4,7 +4,9 @@ import {
   ListConversationsParams, // Import new type
   ConversationsResponse,
   ListMessagesParams,
-  MessagesResponse, // Import new type
+  MessagesResponse,
+  SendMessageParams,
+  SendMessageResponse, // Import new type
 } from "./types";
 
 class OpenPhoneClient {
@@ -112,7 +114,6 @@ class OpenPhoneClient {
     urlParams.append("phoneNumberId", params.phoneNumberId);
     params.participants.forEach((p) => urlParams.append("participants", p));
 
-    // Append optional parameters
     if (params.userId) urlParams.append("userId", params.userId);
     if (params.createdAfter)
       urlParams.append("createdAfter", params.createdAfter);
@@ -136,6 +137,51 @@ class OpenPhoneClient {
     }
 
     return response.json() as Promise<MessagesResponse>;
+  }
+
+  public async sendMessage(
+    params: SendMessageParams,
+  ): Promise<SendMessageResponse> {
+    const url = `${this.baseUrl}/v1/messages`;
+
+    // Basic validation (optional, as API will also validate)
+    if (
+      !params.content ||
+      params.content.length === 0 ||
+      params.content.length > 1600
+    ) {
+      throw new Error("Message content must be between 1 and 1600 characters.");
+    }
+    if (!params.from) {
+      throw new Error(
+        "'from' field (OpenPhone number ID or E.164) is required.",
+      );
+    }
+    if (!params.to || params.to.length === 0) {
+      throw new Error("At least one recipient ('to') is required.");
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    });
+
+    if (!response.ok) {
+      let errorBody = "";
+      try {
+        errorBody = await response.text();
+      } catch (e) {
+        console.error(e);
+      }
+      throw new Error(
+        `OpenPhone API error [sendMessage]: ${response.status} ${response.statusText}. ${errorBody}`.trim(),
+      );
+    }
+
+    return response.json() as Promise<SendMessageResponse>;
   }
 }
 
