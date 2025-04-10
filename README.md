@@ -36,7 +36,7 @@ Improvements that I would go for if I wanted to spend more time:
 
 ## Assumptions / Trade-offs
 
-- I couldn't figure out why the conversations endpoint returned conversations in arbitrary order. If there was one, I couldn't understand it and there were no sorting things I could pass to the API.
-- I think, that in the OpenPhone app itself, you would have to use conversations in conjunction with contacts to get info about the user - I decided to forego this for the sake of saving some time.
+- I couldn't figure out why the conversations endpoint returned conversations in arbitrary order. If there was some logic behind it, I couldn't understand it and there were no sorting keys I could pass to the API.
+- I think, that in the OpenPhone app itself, you would have to use conversations in conjunction with contacts to get info about all of the users in conversations and you would construct conversations page/widget from them. I decided to forego this for the sake of saving some time.
 - I would love to implement breadcrumbs, but I would have to restructure `<Outlet />` hierarchy to get them to work simply - probably some kind of `<Page />` abstraction would implement it reasonably well.
 - Not a lot of tests, but at the same time, there's not a lot of business logic that would require validation. All of the optimistic merging logic came out to be not very readable due to a lot destructuring, so I decided that it's probably worth validating it somehow. Ideally, I would test all of the business logic like this and as for the functionality of the app itself - integration/E2E tests would be much more robust than unit tests.
