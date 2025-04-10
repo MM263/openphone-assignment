@@ -56,6 +56,9 @@ function Chat() {
   const [text, setText] = useState("");
 
   const submitText = useCallback(() => {
+    if (text === "") return;
+    if (text.length > 1000) return;
+
     const trimmedText = text.trim();
     if (!trimmedText || sendMessageMutation.isPending) {
       return;
@@ -144,14 +147,19 @@ function Chat() {
         className="bottom-5 fixed"
       >
         <Textarea
-          className="border-slate-500 border-2 h-32"
+          className="border-slate-500 border-2 h-32 scroll-p-20"
           value={text}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
         />
-        <Button className="fixed bottom-8 right-10" onClick={submitText}>
-          Send <SendHorizontal />
-        </Button>
+        <div className="fixed bottom-8 right-10 flex gap-3 items-center">
+          <p className={text.length > 1000 ? "text-red-400" : "text-slate-400"}>
+            {1000 - text.length}
+          </p>
+          <Button disabled={text.length > 1000} onClick={submitText}>
+            Send <SendHorizontal />
+          </Button>
+        </div>
       </div>
     </div>
   );
