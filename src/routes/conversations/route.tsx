@@ -29,23 +29,23 @@ export const Route = createFileRoute("/conversations")({
 function Index() {
   const phoneNumbers = Route.useLoaderData() as PhoneNumbersResponse;
 
-  console.log(phoneNumbers);
   return (
     <>
       <AppSidebar>
         <SidebarGroup>
           <SidebarGroupLabel>Your phone numbers</SidebarGroupLabel>
           {phoneNumbers.data.map((pn) => (
-            <SidebarMenuButton key={pn.id}>
-              <Link
-                to="/conversations/$phoneId"
-                params={{
-                  phoneId: pn.id,
-                }}
-              >
-                {pn.symbol} {pn.name}
-              </Link>
-            </SidebarMenuButton>
+            <Link
+              to="/conversations/$phoneId"
+              params={{
+                phoneId: pn.id,
+              }}
+            >
+              <SidebarMenuButton key={pn.id} className="cursor-pointer">
+                {pn.symbol} {pn.name}{" "}
+                <span className="text-slate-500">{pn.formattedNumber}</span>
+              </SidebarMenuButton>
+            </Link>
           ))}
         </SidebarGroup>
       </AppSidebar>
