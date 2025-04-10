@@ -1,4 +1,5 @@
 import OpenPhoneClient from "@/common/api/client";
+import { FormattedDate } from "@/common/components/FormattedDate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/conversations/$phoneId/")({
@@ -10,7 +11,12 @@ export const Route = createFileRoute("/conversations/$phoneId/")({
         phoneNumbers: [phoneId],
       });
 
-      return conversations;
+      return conversations.data.sort((a, b) =>
+        new Date(a.updatedAt ?? a.createdAt!) >
+        new Date(b.updatedAt ?? b.createdAt!)
+          ? -1
+          : 1,
+      );
     } catch (error) {
       console.error("Failed to load phone numbers:", error);
       throw new Error("Failed to load phone numbers");
@@ -24,8 +30,8 @@ function Conversations() {
   const conversations = Route.useLoaderData();
 
   return (
-    <div className="h-full w-full flex flex-col gap-2">
-      {conversations.data.map((c) => (
+    <div className="h-full w-full flex flex-col gap-2 ">
+      {conversations.map((c) => (
         <Link
           to="/conversations/$phoneId/$participantPhoneId"
           params={{
@@ -35,14 +41,15 @@ function Conversations() {
         >
           <div
             key={c.id}
-            className="flex flex-col gap-1 border-1 border-solid border-slate-400 rounded-sm py-2 px-4 hover:bg-slate-100"
+            className="flex flex-col gap-1 rounded-sm py-2 px-4 bg-slate-50 max-w-2xl hover:bg-slate-200 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]"
           >
             <p>
               {c.participants.at(0)}
               {c.name ? ` (${c.name})` : null}
             </p>
             <p className="text-slate-500 text-xs">
-              Latest message: {c.lastActivityAt}
+              Latest message:{" "}
+              <FormattedDate dateString={c.updatedAt ?? c.createdAt!} />
             </p>
           </div>
         </Link>
