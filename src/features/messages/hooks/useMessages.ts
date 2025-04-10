@@ -11,6 +11,10 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import {
+  mergeOptimisticMessage,
+  replaceOptimisticMessage,
+} from "../domain/optimisitic";
 
 interface UseMessagesParams {
   phoneId: string;
@@ -63,7 +67,7 @@ export const useMessages = ({
         participantPhoneId,
       ]);
 
-      const optimisticMessage: Message = {
+      const message: Message = {
         id: `temp-${Date.now()}`, // Temporary ID
         to: [participantPhoneId],
         from: phoneId,
@@ -79,38 +83,11 @@ export const useMessages = ({
       // Update the cache with our optimistic message
       queryClient.setQueryData(
         ["messages", phoneId, participantPhoneId],
-        (old: InfiniteData<MessagesResponse>) => {
-          // Handle first page case
-          if (!old || !old.pages || old.pages.length === 0) {
-            return {
-              pages: [
-                {
-                  data: [optimisticMessage],
-                  totalItems: 1,
-                  nextPageToken: null,
-                },
-              ],
-              pageParams: [undefined],
-            };
-          }
-
-          // Clone the pages
-          const newPages = [...old.pages];
-          // Add the optimistic message to the most recent page
-          newPages[0] = {
-            ...newPages[0],
-            data: [optimisticMessage, ...newPages[0].data],
-            totalItems: newPages[0].totalItems + 1,
-          };
-
-          return {
-            ...old,
-            pages: newPages,
-          };
-        },
+        (old: InfiniteData<MessagesResponse>) =>
+          mergeOptimisticMessage(old, message),
       );
 
-      return { previousMessages, optimisticMessage };
+      return { previousMessages, optimisticMessage: message };
     },
     onError: (error, _newMessage, context) => {
       if (context?.previousMessages) {
@@ -127,22 +104,12 @@ export const useMessages = ({
       if (context?.optimisticMessage) {
         queryClient.setQueryData(
           ["messages", phoneId, participantPhoneId],
-          (old: InfiniteData<MessagesResponse>) => {
-            if (!old || !old.pages) return old;
-
-            const newPages = old.pages.map((page: MessagesResponse) => {
-              const updatedData = page.data.map((message: Message) => {
-                // Replace the optimistic message with the real one
-                if (message.id === context.optimisticMessage.id) {
-                  return result.data;
-                }
-                return message;
-              });
-              return { ...page, data: updatedData };
-            });
-
-            return { ...old, pages: newPages };
-          },
+          (old: InfiniteData<MessagesResponse>) =>
+            replaceOptimisticMessage(
+              old,
+              context.optimisticMessage.id,
+              result.data,
+            ),
         );
       }
     },
